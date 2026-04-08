@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Expense" ADD COLUMN     "userId" TEXT NOT NULL DEFAULT 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7';

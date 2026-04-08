@@ -1,0 +1,10 @@
+node_modules/
+dist/
+
+server/src/generated/prisma/
+
+.env
+.env.*
+*.env
+
+.vscode/settings.json

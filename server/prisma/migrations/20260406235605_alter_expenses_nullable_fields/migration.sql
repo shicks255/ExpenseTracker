@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Expense" ALTER COLUMN "vendor" DROP NOT NULL,
+ALTER COLUMN "category_id" DROP NOT NULL,
+ALTER COLUMN "note" DROP NOT NULL;
