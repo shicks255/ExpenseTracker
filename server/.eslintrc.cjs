@@ -17,6 +17,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
   ],
+  ignorePatterns: ['node_modules/', 'dist/', 'src/generated/prisma/'],
   rules: {
     'prettier/prettier': 'error',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
