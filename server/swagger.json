@@ -33,26 +33,27 @@
 						"type": "string"
 					},
 					"date": {
-						"type": "string"
+						"type": "string",
+						"format": "date-time"
 					},
 					"amount": {
 						"type": "number",
 						"format": "double"
 					},
 					"vendor": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"category_id": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"nullable": true
 					}
 				},
 				"required": [
 					"id",
 					"date",
-					"amount",
-					"vendor",
-					"category_id"
+					"amount"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -78,6 +79,123 @@
 					"amount",
 					"vendor",
 					"category_id"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ReportRow": {
+				"properties": {
+					"periodStart": {
+						"type": "string"
+					},
+					"groupKey": {
+						"type": "string"
+					},
+					"groupLabel": {
+						"type": "string"
+					},
+					"totalAmount": {
+						"type": "number",
+						"format": "double"
+					},
+					"expenseCount": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"periodStart",
+					"groupKey",
+					"groupLabel",
+					"totalAmount",
+					"expenseCount"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Report": {
+				"properties": {
+					"aggregation": {
+						"type": "string",
+						"enum": [
+							"daily",
+							"weekly",
+							"monthly",
+							"yearly"
+						]
+					},
+					"groupBy": {
+						"type": "string",
+						"enum": [
+							"category",
+							"vendor"
+						]
+					},
+					"from": {
+						"type": "string"
+					},
+					"to": {
+						"type": "string"
+					},
+					"rows": {
+						"items": {
+							"$ref": "#/components/schemas/ReportRow"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"aggregation",
+					"groupBy",
+					"from",
+					"to",
+					"rows"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"RequestInput": {
+				"properties": {
+					"aggregation": {
+						"type": "string",
+						"enum": [
+							"daily",
+							"weekly",
+							"monthly",
+							"yearly"
+						]
+					},
+					"groupBy": {
+						"type": "string",
+						"enum": [
+							"category",
+							"vendor"
+						]
+					},
+					"filterBy": {
+						"properties": {
+							"categoryIds": {
+								"items": {
+									"type": "number",
+									"format": "double"
+								},
+								"type": "array"
+							}
+						},
+						"type": "object"
+					},
+					"from": {
+						"type": "string"
+					},
+					"to": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"aggregation",
+					"groupBy",
+					"from",
+					"to"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -357,6 +475,38 @@
 						}
 					}
 				]
+			}
+		},
+		"/api/reporting": {
+			"post": {
+				"operationId": "GetExpensesReport",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Report"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized"
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RequestInput"
+							}
+						}
+					}
+				}
 			}
 		}
 	},

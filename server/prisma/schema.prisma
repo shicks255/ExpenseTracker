@@ -18,7 +18,7 @@ datasource db {
 model Expense {
   id String @id @default(uuid())
   userId String @default("user_3C3ErmPiHCVyYTiSKMeN21Ef3b7")
-  date String
+  date DateTime
   amount Int
   vendor String?
   note String?

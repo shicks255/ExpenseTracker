@@ -17,6 +17,8 @@ import {
   navigationMenuTriggerStyle,
 } from './components/ui/navigation-menu';
 import { SignInButton, UserButton, useAuth } from '@clerk/react';
+import { Charts } from './components/Charts';
+import { Settings } from './components/Settings';
 
 export default function App() {
   const { isSignedIn } = useAuth();
@@ -50,6 +52,11 @@ export default function App() {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                   <Link to="/charts">Charts</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                  <Link to="/settings">Settings</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -93,15 +100,8 @@ export default function App() {
               </div>
             }
           />
-          <Route
-            path="/charts"
-            element={
-              <div className="space-y-4">
-                <h1 className="text-2xl font-semibold">Charts</h1>
-                <p className="text-muted-foreground">Chart support is coming soon.</p>
-              </div>
-            }
-          />
+          <Route path="/charts" element={<Charts />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </SidebarInset>
     </SidebarProvider>

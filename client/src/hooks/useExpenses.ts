@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Expense } from '../types';
-import { getToken, useAuth } from '@clerk/react';
+import { useAuth } from '@clerk/react';
 
 interface IExpenseFilter {
   sortBy: string;
@@ -44,8 +44,13 @@ export const useExpenses = (filter: IExpenseFilter) => {
     enabled: isLoaded && isSignedIn,
     queryFn: async (): Promise<Expense[]> => {
       const token = await getToken({ skipCache: true });
+      if (!token) {
+        throw new Error('Missing Clerk session token');
+      }
+
       const qp = filter ? `?${buildQueryParams(filter)}` : '';
       const res = await fetch(`/api/expenses${qp}`, {
+        credentials: 'include',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,6 +63,7 @@ export const useExpenses = (filter: IExpenseFilter) => {
 
 export const useCreateExpense = () => {
   const queryClient = useQueryClient();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
 
   return useMutation({
     mutationFn: async (expense: {
@@ -66,7 +72,11 @@ export const useCreateExpense = () => {
       vendor: string;
       category_id: number;
     }): Promise<Expense> => {
-      const token = await getToken();
+      if (!isLoaded || !isSignedIn) {
+        throw new Error('Not authenticated');
+      }
+
+      const token = await getToken({ skipCache: true });
       const res = await fetch('/api/expenses', {
         method: 'POST',
         headers: {
@@ -86,10 +96,21 @@ export const useCreateExpense = () => {
 
 export const useDeleteExpense = () => {
   const queryClient = useQueryClient();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
 
   return useMutation({
     mutationFn: async (id: string): Promise<void> => {
-      const res = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+      if (!isLoaded || !isSignedIn) {
+        throw new Error('Not authenticated');
+      }
+
+      const token = await getToken({ skipCache: true });
+      const res = await fetch(`/api/expenses/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!res.ok) throw new Error('Failed to delete expense');
     },
     onSuccess: () => {

@@ -14,10 +14,48 @@ import {
 } from 'tsoa';
 import { Expense, CreateExpenseRequest } from '../models/Expense.js';
 import { prisma } from '../db.js';
-import { getAuth } from '@clerk/express';
+import { authenticateRequest, getAuth } from '@clerk/express';
+import { debugRequestState } from '@clerk/backend/internal';
+import { createClerkClient } from '@clerk/backend';
 import { Request as ExpressRequest } from 'express';
 
 const expenses = new Map<string, Expense>();
+
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+  publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+});
+
+const parseExpenseDate = (value: string): Date => {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error('Invalid date');
+  }
+
+  return parsed;
+};
+
+const decodeJwtPayload = (authorizationHeader?: string) => {
+  if (!authorizationHeader?.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authorizationHeader.slice('Bearer '.length);
+  const parts = token.split('.');
+  if (parts.length < 2) {
+    return null;
+  }
+
+  try {
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+    const payload = Buffer.from(padded, 'base64').toString('utf8');
+    return JSON.parse(payload) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+};
 
 interface IExpenseFilter {
   sortBy: string;
@@ -43,7 +81,37 @@ export class ExpensesController extends Controller {
     @Query() from?: string,
     @Query() to?: string,
   ): Promise<Expense[]> {
+    const requestState = await authenticateRequest({
+      clerkClient,
+      request,
+      options: {
+        secretKey: process.env.CLERK_SECRET_KEY,
+        publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+        acceptsToken: 'any',
+      },
+    });
     const user = getAuth(request);
+    const anyTokenAuth = getAuth(request, { acceptsToken: 'any' });
+    const decodedPayload = decodeJwtPayload(request.headers.authorization);
+
+    console.log('GET /api/expenses auth debug', {
+      hasAuthorizationHeader: Boolean(request.headers.authorization),
+      authorizationPrefix: request.headers.authorization?.slice(0, 20) ?? null,
+      userId: user?.userId ?? null,
+      sessionId: user?.sessionId ?? null,
+      anyTokenType: anyTokenAuth?.tokenType ?? null,
+      anyTokenSubject: 'subject' in anyTokenAuth ? anyTokenAuth.subject : null,
+      requestState: debugRequestState(requestState),
+      decodedClaims: decodedPayload
+        ? {
+            iss: decodedPayload.iss ?? null,
+            azp: decodedPayload.azp ?? null,
+            sub: decodedPayload.sub ?? null,
+            sid: decodedPayload.sid ?? null,
+            v: decodedPayload.v ?? null,
+          }
+        : null,
+    });
 
     if (!user || !user.userId) {
       this.setStatus(401);
@@ -56,7 +124,13 @@ export class ExpensesController extends Controller {
         userId: user.userId,
         category_id: categoryId,
         vendor: vendor ? { contains: vendor, mode: 'insensitive' } : undefined,
-        date: from && to ? { gte: from, lte: to } : undefined,
+        date:
+          from && to
+            ? {
+                gte: parseExpenseDate(from),
+                lte: parseExpenseDate(to),
+              }
+            : undefined,
       },
       take: size,
     });
@@ -83,7 +157,7 @@ export class ExpensesController extends Controller {
       id,
       vendor: requestBody.vendor,
       amount: requestBody.amount,
-      date: requestBody.date || new Date().toISOString(),
+      date: requestBody.date ? parseExpenseDate(requestBody.date) : new Date(),
       category_id: requestBody.category_id,
     };
     expenses.set(id, expense);
@@ -106,7 +180,7 @@ export class ExpensesController extends Controller {
       id,
       vendor: requestBody.vendor ?? existing.vendor,
       amount: requestBody.amount ?? existing.amount,
-      date: requestBody.date ?? existing.date,
+      date: requestBody.date ? parseExpenseDate(requestBody.date) : existing.date,
       category_id: requestBody.category_id ?? existing.category_id,
     };
     expenses.set(id, updated);

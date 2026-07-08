@@ -4,7 +4,7 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "tsoa:routes": "tsoa routes",
+    "tsoa:routes": "tsoa routes && node scripts/fix-tsoa-routes.mjs",
     "tsoa:spec": "tsoa spec",
     "dev": "npm run tsoa:routes && npm run tsoa:spec && tsx watch src/index.ts --respawn --transpile-only src/index.ts",
     "build": "npm run tsoa:routes && npm run tsoa:spec && tsc -p .",
@@ -14,7 +14,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@clerk/express": "^2.0.11",
+    "@clerk/express": "^1.2.2",
     "@prisma/client": "^6.19.3",
     "cors": "^2.8.6",
     "express": "^5.2.1",

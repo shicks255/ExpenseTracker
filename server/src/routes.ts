@@ -3,9 +3,11 @@
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, HttpStatusCodeLiteral, TsoaResponse, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { CategoryController } from './controllers/CategoryController';
+import { CategoryController } from './controllers/CategoryController.js';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { ExpensesController } from './controllers/ExpensesController';
+import { ExpensesController } from './controllers/ExpensesController.js';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { ReportingController } from './controllers/ReportingController.js';
 import type { RequestHandler } from 'express';
 import * as express from 'express';
 
@@ -26,10 +28,10 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
-            "date": {"dataType":"string","required":true},
+            "date": {"dataType":"datetime","required":true},
             "amount": {"dataType":"double","required":true},
-            "vendor": {"dataType":"string","required":true},
-            "category_id": {"dataType":"double","required":true},
+            "vendor": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
+            "category_id": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]}]},
         },
         "additionalProperties": false,
     },
@@ -41,6 +43,42 @@ const models: TsoaRoute.Models = {
             "amount": {"dataType":"double","required":true},
             "vendor": {"dataType":"string","required":true},
             "category_id": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ReportRow": {
+        "dataType": "refObject",
+        "properties": {
+            "periodStart": {"dataType":"string","required":true},
+            "groupKey": {"dataType":"string","required":true},
+            "groupLabel": {"dataType":"string","required":true},
+            "totalAmount": {"dataType":"double","required":true},
+            "expenseCount": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Report": {
+        "dataType": "refObject",
+        "properties": {
+            "aggregation": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["daily"]},{"dataType":"enum","enums":["weekly"]},{"dataType":"enum","enums":["monthly"]},{"dataType":"enum","enums":["yearly"]}],"required":true},
+            "groupBy": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["category"]},{"dataType":"enum","enums":["vendor"]}],"required":true},
+            "from": {"dataType":"string","required":true},
+            "to": {"dataType":"string","required":true},
+            "rows": {"dataType":"array","array":{"dataType":"refObject","ref":"ReportRow"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "RequestInput": {
+        "dataType": "refObject",
+        "properties": {
+            "aggregation": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["daily"]},{"dataType":"enum","enums":["weekly"]},{"dataType":"enum","enums":["monthly"]},{"dataType":"enum","enums":["yearly"]}],"required":true},
+            "groupBy": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["category"]},{"dataType":"enum","enums":["vendor"]}],"required":true},
+            "filterBy": {"dataType":"nestedObjectLiteral","nestedProperties":{"categoryIds":{"dataType":"array","array":{"dataType":"double"}}}},
+            "from": {"dataType":"string","required":true},
+            "to": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -207,6 +245,32 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.deleteExpense.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/api/reporting',
+            ...(fetchMiddlewares<RequestHandler>(ReportingController)),
+            ...(fetchMiddlewares<RequestHandler>(ReportingController.prototype.getExpensesReport)),
+
+            function ReportingController_getExpensesReport(request: any, response: any, next: any) {
+            const args = {
+                    body: {"in":"body","name":"body","required":true,"ref":"RequestInput"},
+                    request: {"in":"request","name":"request","required":true,"dataType":"object"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new ReportingController();
+
+
+              const promise = controller.getExpensesReport.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
