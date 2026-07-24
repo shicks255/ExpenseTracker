@@ -12,4 +12,4 @@ ENV NODE_ENV=production
 
 EXPOSE 8181
 
-CMD ["node", "index.js"]
+CMD ["node", "dist/index.js"]
