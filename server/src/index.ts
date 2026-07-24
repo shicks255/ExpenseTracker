@@ -28,7 +28,7 @@ RegisterRoutes(app);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8181;
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
