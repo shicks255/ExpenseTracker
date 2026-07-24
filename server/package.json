@@ -7,7 +7,7 @@
     "tsoa:routes": "tsoa routes && node scripts/fix-tsoa-routes.mjs",
     "tsoa:spec": "tsoa spec",
     "dev": "npm run tsoa:routes && npm run tsoa:spec && tsx watch src/index.ts --respawn --transpile-only src/index.ts",
-    "build": "npm run tsoa:routes && npm run tsoa:spec && tsc -p .",
+    "build": "prisma generate && npm run tsoa:routes && npm run tsoa:spec && tsc -p .",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts --ignore-path .eslintignore",
     "lint:fix": "eslint . --ext .ts --ignore-path .eslintignore --fix",
