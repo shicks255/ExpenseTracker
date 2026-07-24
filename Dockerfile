@@ -1,4 +1,4 @@
-from node:22-alpha
+from node:22-alpine
 
 WORKDIR /home/node/app
 
