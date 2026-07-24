@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useReports } from '@/hooks/useReports';
-import { ChartContainer } from './ui/chart';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from './ui/chart';
+import { LineChart, Line, XAxis, YAxis, Legend } from 'recharts';
 import { generateDateRange } from '@/lib/utils';
 import { DatePicker } from './DatePicker';
 import { Radio, RadioGroup } from './ui/radio';
 import { useCategories } from '@/hooks/useCategories';
-import { Field, FieldGroup } from './ui/field';
+import { Field, FieldGroup, FieldLabel } from './ui/field';
 import { Checkbox } from './ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Loader2 } from 'lucide-react';
 // import { RechartsDevtools } from '@recharts/devtools';
 
 const computeAggregation = (dateRange: { from: string; to: string }) => {
@@ -63,8 +64,38 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(value / 100);
+
+const colors = [
+  '#3b82f6',
+  '#ef4444',
+  '#22c55e',
+  '#f59e0b',
+  '#a855f7',
+  '#06b6d4',
+  '#ec4899',
+  '#84cc16',
+];
+
+const LineTooltipWrapper = ({ payload, ...props }) => {
+  const filtered = [...(payload ?? [])]
+    .filter((item) => {
+      const value = Number(item.value);
+
+      return Number.isFinite(value) && value !== 0;
+    })
+    .sort((a, b) => Number(b.value) - Number(a.value))
+    .map((a) => {
+      return { ...a, value: formatCurrency(a.value) };
+    });
+
+  if (filtered.length == 0) {
+    return null;
+  }
+
+  return <ChartTooltipContent {...props} payload={filtered} />;
+};
 
 export const Charts = () => {
   const [dateRange, setDateRange] = useState(() => generateDateRange('30d'));
@@ -88,10 +119,12 @@ export const Charts = () => {
   });
 
   // @ts-expect-error - need to fix this in the controller
-  let chartData = data?.rows?.map((row) => ({
-    date: row.periodStart,
-    value: row.totalAmount,
-  }));
+  let chartData = data?.rows?.map((row) => {
+    const date = row.bucket;
+    return { date, ...row.values };
+  });
+
+  console.log(chartData);
 
   if (cumulative) {
     let rummingSum = 0;
@@ -107,10 +140,10 @@ export const Charts = () => {
   const dateFormat = computeDateFormat(aggregation);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Charts</h1>
-      <p className="text-muted-foreground">Chart support is coming soon.</p>
-
+    <div>
+      <Field>
+        <FieldLabel>Date range</FieldLabel>
+      </Field>
       <DatePicker
         currentValue={dateRange}
         onDateChange={(from, to) => {
@@ -118,6 +151,9 @@ export const Charts = () => {
         }}
       />
 
+      <Field>
+        <FieldLabel>Behavior</FieldLabel>
+      </Field>
       <RadioGroup defaultValue="Split" aria-label="X">
         <Radio value="Split" onClick={() => setCumulative(false)}>
           Split
@@ -153,7 +189,11 @@ export const Charts = () => {
           ))}
         </div>
       </div>
-
+      {isLoading && (
+        <div className=" h-100 inset-0 z-50 flex items-center justify-center pointer-events-none">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      )}
       <ChartContainer
         config={{
           value: {
@@ -178,12 +218,25 @@ export const Charts = () => {
             tickFormatter={(value) => new Date(value).toLocaleDateString('default', dateFormat)}
           />
           <YAxis stroke="#8884d8" tickFormatter={(value: number) => formatCurrency(value)} />
-          <Tooltip
-            formatter={(value: number) => formatCurrency(value)}
+          <ChartTooltip
+            content={<LineTooltipWrapper />}
+            // itemSorter={(item) => -(Number(item.value) || 0)}
+            // formatter={(value: number, name: string) => name + formatCurrency(value)}
             labelFormatter={(value) => new Date(value).toLocaleDateString('default', dateFormat)}
           />
           <Legend />
-          <Line type="monotone" dataKey="value" />
+          {selectedCats.map((c, i) => {
+            const name = categories?.find((cc) => cc.id == c)?.name ?? '';
+            return (
+              <Line
+                stroke={colors[i % colors.length]}
+                name={name}
+                key={c}
+                type="monotone"
+                dataKey={c}
+              />
+            );
+          })}
         </LineChart>
       </ChartContainer>
     </div>

@@ -11,13 +11,13 @@ module.exports = {
     project: ['./tsconfig.json'],
     tsconfigRootDir: __dirname,
   },
-  plugins: ['@typescript-eslint', 'prettier', 'react', 'react-hooks'],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    'plugin:prettier/recommended',
+    'prettier',
   ],
   settings: {
     react: {
@@ -26,7 +26,6 @@ module.exports = {
   },
   ignorePatterns: ['node_modules/', 'dist/', 'build/'],
   rules: {
-    'prettier/prettier': 'error',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     'react/react-in-jsx-scope': 'off',
   },

@@ -7,7 +7,7 @@ import { useOnClickOutside } from '@/hooks/use-on-click-outside';
 import { Button } from './ui/button';
 import { Calendar } from './ui/calendar';
 
-type DateFilterOption = '7d' | '30d' | 'pastFullMonth' | '3m' | 'ytd' | 'ly' | 'custom';
+type DateFilterOption = '7d' | '30d' | 'pastFullMonth' | '3m' | 'ytd' | 'ly' | 'custom' | 'all';
 
 interface DatePickerValue {
   from: string;
@@ -26,6 +26,7 @@ const PRESET_OPTIONS: Array<{ value: Exclude<DateFilterOption, 'custom'>; label:
   { value: '3m', label: 'Last 3 months' },
   { value: 'ytd', label: 'Year to Date' },
   { value: 'ly', label: 'Last year' },
+  { value: 'all', label: 'All time' },
 ];
 
 const toDate = (value?: string) => {
@@ -117,7 +118,8 @@ export const DatePicker = ({ onDateChange, currentValue = null }: DatePickerProp
   const triggerLabel =
     selectedOption === 'custom'
       ? formatRangeLabel(currentValue)
-      : PRESET_OPTIONS.find((option) => option.value === selectedOption)?.label ?? 'Select date range';
+      : (PRESET_OPTIONS.find((option) => option.value === selectedOption)?.label ??
+        'Select date range');
 
   const applyPreset = (value: Exclude<DateFilterOption, 'custom'>) => {
     setSelectedOption(value);

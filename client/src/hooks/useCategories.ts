@@ -1,6 +1,36 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserCategory } from '../types';
 import { useAuth } from '@clerk/react';
+
+export const usePostCategory = () => {
+  const queryClient = useQueryClient();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+
+  return useMutation({
+    mutationFn: async (category: string): Promise<UserCategory> => {
+      if (!isLoaded || !isSignedIn) {
+        throw new Error('Not authenticated');
+      }
+
+      const token = await getToken({ skipCache: true });
+      const res = await fetch(`/api/categories/${category}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error('Failed to post category');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['categories'],
+      });
+    },
+  });
+};
 
 export const useCategories = () => {
   const { getToken, isLoaded, isSignedIn } = useAuth();

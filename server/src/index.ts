@@ -43,63 +43,38 @@ console.log('Database connected');
 prisma.$connect().then(async () => {
   console.log('Connected to database');
 
-  // await prisma.expense.deleteMany();
+  try {
+    console.log('Deleting all categories');
+    //   await prisma.userCategory.deleteMany();
 
-  // const expense1 = await prisma.expense.create({
-  //     data: {
-  //         date: new Date().toISOString(),
-  //         amount: 2599,
-  //         vendor: "Ebay",
-  //         category_id: 1,
-  //     },
-  // });
+    //   const category1 = await prisma.userCategory.create({
+    //     data: {
+    //       userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
+    //       id: 1,
+    //       name: 'Food',
+    //       notes: 'Expenses for groceries and dining out',
+    //     },
+    //   });
 
-  // const expense2 = await prisma.expense.create({
-  //     data: {
-  //         date: new Date().toISOString(),
-  //         amount: 1299,
-  //         vendor: "Amazon",
-  //         category_id: 1,
-  //     },
-  // });
+    //   const category2 = await prisma.userCategory.create({
+    //     data: {
+    //       userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
+    //       id: 2,
+    //       name: 'House',
+    //       notes: 'Expenses for groceries and dining out',
+    //     },
+    //   });
 
-  // const expense3 = await prisma.expense.create({
-  //     data: {
-  //         date: new Date().toISOString(),
-  //         amount: 12599,
-  //         vendor: "WalMart",
-  //         category_id: 2,
-  //     },
-  // });
-
-  // console.log("Created test expense:", expense1, expense2, expense3);
-
-  await prisma.userCategory.deleteMany();
-
-  const category1 = await prisma.userCategory.create({
-    data: {
-      userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
-      id: 1,
-      name: 'Food',
-      notes: 'Expenses for groceries and dining out',
-    },
-  });
-
-  const category2 = await prisma.userCategory.create({
-    data: {
-      userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
-      id: 2,
-      name: 'House',
-      notes: 'Expenses for groceries and dining out',
-    },
-  });
-
-  const category3 = await prisma.userCategory.create({
-    data: {
-      userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
-      id: 3,
-      name: 'Other',
-      notes: 'Expenses for groceries and dining out',
-    },
-  });
+    //   const category3 = await prisma.userCategory.create({
+    //     data: {
+    //       userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
+    //       id: 3,
+    //       name: 'Other',
+    //       notes: 'Expenses for groceries and dining out',
+    //     },
+    //   });
+  } catch (error) {
+    console.error('Error creating categories:', error);
+  }
+  console.log('done database stuff');
 });

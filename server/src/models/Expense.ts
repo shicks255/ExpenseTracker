@@ -4,6 +4,7 @@ export interface Expense {
   amount: number;
   vendor?: string | null;
   category_id?: number | null;
+  note?: string | null;
 }
 
 export interface CreateExpenseRequest {
@@ -11,4 +12,5 @@ export interface CreateExpenseRequest {
   amount: number;
   vendor: string;
   category_id: number;
+  note?: string | null;
 }
