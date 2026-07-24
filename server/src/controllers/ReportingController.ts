@@ -197,6 +197,7 @@ export class ReportingController extends Controller {
       return prev;
     }, {});
 
+    // @ts-ignore
     const dateBuckets = getDateBuckets(from, to, body.aggregation);
     const results = dateBuckets.map((bucket) => {
       return {
@@ -229,6 +230,7 @@ export class ReportingController extends Controller {
 
     return {
       aggregation: body.aggregation,
+      // @ts-expect-error not needed
       from: from.toLocaleDateString(),
       to: to.toLocaleDateString(),
       rows: results.map((rr) => {

@@ -4,7 +4,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import { RegisterRoutes } from './routes.js';
-import swaggerDocument from '../swagger.json';
+import swaggerDocument from '../swagger.json' with { type: 'json' };
 import { Prisma } from './generated/prisma/browser.js';
 import { clerkMiddleware, requireAuth, getAuth } from '@clerk/express';
 

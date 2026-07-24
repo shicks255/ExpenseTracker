@@ -1,11 +1,9 @@
-import { Body, Controller, Post, Request, Response, Route, UploadedFile } from 'tsoa';
+import { Controller, Post, Request, Response, Route, UploadedFile } from 'tsoa';
 import { prisma } from '../db.js';
 import { getAuth } from '@clerk/express';
 import { Request as ExpressRequest } from 'express';
 import fs from 'node:fs/promises';
-import path from 'path';
 import { PDFParse } from 'pdf-parse';
-import { upload } from '../index.js';
 
 interface UploadResults {
   items: UploadExpenseItem[];
