@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useReports } from '@/hooks/useReports';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from './ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@ui/chart';
 import { LineChart, Line, XAxis, YAxis, Legend } from 'recharts';
 import { generateDateRange } from '@/lib/utils';
-import { DatePicker } from './DatePicker';
-import { Radio, RadioGroup } from './ui/radio';
+import { DatePicker } from '../common/DatePicker';
+import { Radio, RadioGroup } from '@ui/radio';
 import { useCategories } from '@/hooks/useCategories';
-import { Field, FieldGroup, FieldLabel } from './ui/field';
-import { Checkbox } from './ui/checkbox';
+import { Field, FieldGroup, FieldLabel } from '@ui/field';
+import { Checkbox } from '@ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 // import { RechartsDevtools } from '@recharts/devtools';

@@ -4,8 +4,8 @@ import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
 
 import { generateDateRange } from '@/lib/utils';
 import { useOnClickOutside } from '@/hooks/use-on-click-outside';
-import { Button } from './ui/button';
-import { Calendar } from './ui/calendar';
+import { Button } from '@ui/button';
+import { Calendar } from '@ui/calendar';
 
 type DateFilterOption = '7d' | '30d' | 'pastFullMonth' | '3m' | 'ytd' | 'ly' | 'custom' | 'all';
 

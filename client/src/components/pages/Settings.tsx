@@ -8,13 +8,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table';
-import { Button } from './ui/button';
+} from '@ui/table';
+import { Button } from '@ui/button';
 import { useExpenseVendors, useUpdateVendor } from '@/hooks/useExpenses';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Field, FieldGroup } from './ui/field';
-import { Label } from './ui/label';
-import { Input } from './ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover';
+import { Field, FieldGroup } from '@ui/field';
+import { Label } from '@ui/label';
+import { Input } from '@ui/input';
 import { useState } from 'react';
 import {
   Dialog,
@@ -25,9 +25,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Skeleton } from './ui/skeleton';
+} from '@ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ui/tabs';
+import { Skeleton } from '@ui/skeleton';
 
 const sortIcon = (sort: 'asc' | 'desc') => {
   return (

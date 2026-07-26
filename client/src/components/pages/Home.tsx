@@ -18,7 +18,7 @@ import { useExpenses } from '@/hooks/useExpenses';
 import { generateDateRange } from '@/lib/utils';
 import { useCategories } from '@/hooks/useCategories';
 import { useEffect, useState } from 'react';
-import { Skeleton } from './ui/skeleton';
+import { Skeleton } from '@ui/skeleton';
 import { useAuth } from '@clerk/react';
 
 export default function Home() {

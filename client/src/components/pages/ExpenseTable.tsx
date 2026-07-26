@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import {
   useExpenses,
   useExpenseVendors,
@@ -28,9 +28,9 @@ import {
   X,
 } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
-import { Field, FieldLabel } from '../ui/field';
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '../ui/input-group';
-import { DatePicker } from '../DatePicker';
+import { Field, FieldLabel } from '@ui/field';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@ui/input-group';
+import { DatePicker } from '.././common/DatePicker';
 import { generateDateRange } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -38,9 +38,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+} from '@ui/dropdown-menu';
+import { Button } from '@ui/button';
+import { Input } from '@ui/input';
 import {
   Combobox,
   ComboboxChip,
@@ -53,10 +53,10 @@ import {
   ComboboxList,
   ComboboxValue,
   useComboboxAnchor,
-} from '../ui/combobox';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Calendar } from '../ui/calendar';
-import { Checkbox } from '../ui/checkbox';
+} from '@ui/combobox';
+import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover';
+import { Calendar } from '@ui/calendar';
+import { Checkbox } from '@ui/checkbox';
 import {
   Dialog,
   DialogClose,
@@ -64,14 +64,16 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPortal,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
-import { RadioGroup } from '../ui/radio';
-import { RadioGroupItem } from '../ui/radio-group';
-import { Label } from '../ui/label';
-import { Item, ItemContent, ItemMedia, ItemTitle } from '../ui/item';
-import { Spinner } from '../ui/spinner';
+} from '@ui/dialog';
+import { RadioGroup } from '@ui/radio';
+import { RadioGroupItem } from '@ui/radio-group';
+import { Label } from '@ui/label';
+import { Item, ItemContent, ItemMedia, ItemTitle } from '@ui/item';
+import { Spinner } from '@ui/spinner';
+import { useAuth } from '@clerk/react';
 
 const unwrapMoney = (amount: number) => {
   return amount / 100;
@@ -680,3 +682,65 @@ export default function ExpenseTable() {
     </>
   );
 }
+
+export const ExpenseUpload = () => {
+  const { getToken } = useAuth();
+
+  const [uploadDialog, setUploadDialog] = useState(false);
+  const [pdf, setPdf] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null;
+
+    if (!file) {
+      setPdf(null);
+      return;
+    }
+
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+    if (!isPdf) {
+      setPdf(null);
+      // setError("Please select a PDF file.");
+      event.target.value = '';
+      return;
+    }
+
+    setPdf(file);
+  };
+
+  const submitUpload = async () => {
+    const token = await getToken();
+    const formData = new FormData();
+
+    formData.append('pdf', pdf);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          Upload
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>My thing</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>
+          <input onChange={handleFileChange} type="file" accept=".pdf,application/pdf" />
+          {pdf && <button onClick={submitUpload}>Upload</button>}
+        </DialogDescription>
+      </DialogContent>
+    </Dialog>
+  );
+};
