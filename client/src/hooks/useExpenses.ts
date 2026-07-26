@@ -7,8 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { Expense, ExpensesResult, UpdateExpense } from '../types';
 import { useAuth } from '@clerk/react';
-import { useState } from 'react';
-import { fi } from 'date-fns/locale';
+const API_URL = import.meta.env.EXPENSE_API_BASE;
 
 interface IExpenseFilter {
   sortBy: string;
@@ -60,7 +59,7 @@ export const useUpdateVendor = () => {
       }
 
       const token = await getToken({ skipCache: true });
-      const res = await fetch('/api/expenses/vendor', {
+      const res = await fetch(`${API_URL}/api/expenses/vendor`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +84,7 @@ export const useExpenseVendors = () => {
         throw new Error('Missing Clerk session token');
       }
 
-      const res = await fetch('/api/expenses/vendors', {
+      const res = await fetch(`${API_URL}/api/expenses/vendors`, {
         credentials: 'include',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -118,7 +117,7 @@ export const useInifiniteExpenses = (filter: IExpenseFilter) => {
       };
 
       const qp = paramWithPage ? `?${buildQueryParams(paramWithPage)}` : '';
-      const res = await fetch(`/api/expenses${qp}`, {
+      const res = await fetch(`${API_URL}/api/expenses${qp}`, {
         credentials: 'include',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,7 +151,7 @@ export const useExpenses = (filter: IExpenseFilter) => {
       }
 
       const qp = filter ? `?${buildQueryParams(filter)}` : '';
-      const res = await fetch(`/api/expenses${qp}`, {
+      const res = await fetch(`${API_URL}/api/expenses${qp}`, {
         credentials: 'include',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -179,7 +178,7 @@ export const useUpdateExpense = () => {
       const token = await getToken({ skipCache: true });
       const id = updatedExpense.id;
       delete updatedExpense.id; // Remove the id from the body since it's part of the URL
-      const res = await fetch(`/api/expenses/${id}`, {
+      const res = await fetch(`${API_URL}/api/expenses/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -212,7 +211,7 @@ export const useCreateExpense = () => {
       }
 
       const token = await getToken({ skipCache: true });
-      const res = await fetch('/api/expenses', {
+      const res = await fetch(`${API_URL}/api/expenses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -240,7 +239,7 @@ export const useDeleteExpense = () => {
       }
 
       const token = await getToken({ skipCache: true });
-      const res = await fetch(`/api/expenses/${id}`, {
+      const res = await fetch(`${API_URL}/api/expenses/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

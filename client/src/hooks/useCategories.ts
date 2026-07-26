@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserCategory } from '../types';
 import { useAuth } from '@clerk/react';
+const API_URL = import.meta.env.EXPENSE_API_BASE;
 
 export const usePostCategory = () => {
   const queryClient = useQueryClient();
@@ -13,7 +14,7 @@ export const usePostCategory = () => {
       }
 
       const token = await getToken({ skipCache: true });
-      const res = await fetch(`/api/categories/${category}`, {
+      const res = await fetch(`${API_URL}/api/categories/${category}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +45,7 @@ export const useCategories = () => {
         throw new Error('Missing Clerk session token');
       }
 
-      const res = await fetch('/api/categories', {
+      const res = await fetch(`${API_URL}/api/categories`, {
         credentials: 'include',
         headers: {
           Authorization: `Bearer ${token}`,

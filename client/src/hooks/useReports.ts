@@ -1,5 +1,6 @@
 import { useAuth } from '@clerk/react';
 import { useQuery } from '@tanstack/react-query';
+const API_URL = import.meta.env.EXPENSE_API_BASE;
 
 interface ReportRequest {
   aggregation: 'daily' | 'weekly' | 'monthly' | 'yearly';
@@ -20,7 +21,7 @@ export const useReports = (req: ReportRequest) => {
         throw new Error('Missing Clerk session token');
       }
 
-      const res = await fetch('/api/reporting', {
+      const res = await fetch(`${API_URL}/api/reporting`, {
         body: JSON.stringify(req),
         method: 'POST',
         credentials: 'include',
