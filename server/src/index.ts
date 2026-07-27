@@ -13,6 +13,12 @@ const app = express();
 const allowedOrigins = ['http://localhost:5173', 'https://expenses.shicks255.com'];
 
 app.use(
+  cors({
+    origin: allowedOrigins,
+  }),
+);
+
+app.use(
   clerkMiddleware({
     secretKey: process.env.CLERK_SECRET_KEY,
     publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
@@ -25,12 +31,6 @@ app.use(
   }),
 );
 app.use(express.json());
-
-app.use(
-  cors({
-    origin: allowedOrigins,
-  }),
-);
 
 RegisterRoutes(app);
 
