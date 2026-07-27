@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Expense } from '../types';
-const API_URL = import.meta.env.EXPENSE_API_BASE;
+const API_URL = import.meta.env.VITE_EXPENSE_API_BASE;
 
 export default function ExpenseForm({ onCreate }: { onCreate: (e: Expense) => void }) {
   const [description, setDescription] = useState('');

@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { Expense, ExpensesResult, UpdateExpense } from '../types';
 import { useAuth } from '@clerk/react';
-const API_URL = import.meta.env.EXPENSE_API_BASE;
+const API_URL = import.meta.env.VITE_EXPENSE_API_BASE;
 
 interface IExpenseFilter {
   sortBy: string;

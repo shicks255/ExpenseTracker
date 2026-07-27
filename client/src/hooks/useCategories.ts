@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserCategory } from '../types';
 import { useAuth } from '@clerk/react';
-const API_URL = import.meta.env.EXPENSE_API_BASE;
+const API_URL = import.meta.env.VITE_EXPENSE_API_BASE;
 
 export const usePostCategory = () => {
   const queryClient = useQueryClient();

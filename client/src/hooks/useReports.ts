@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/react';
 import { useQuery } from '@tanstack/react-query';
-const API_URL = import.meta.env.EXPENSE_API_BASE;
+const API_URL = import.meta.env.VITE_EXPENSE_API_BASE;
 
 interface ReportRequest {
   aggregation: 'daily' | 'weekly' | 'monthly' | 'yearly';
