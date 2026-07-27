@@ -1,12 +1,12 @@
 import express from 'express';
-import { prisma } from './db.js';
 import 'dotenv/config';
-import cors, { CorsOptions } from 'cors';
+import cors, { type CorsOptions } from 'cors';
 import swaggerUi from 'swagger-ui-express';
+import { clerkMiddleware, requireAuth, getAuth } from '@clerk/express';
+
+import { prisma } from './db.js';
 import { RegisterRoutes } from './routes.js';
 import swaggerDocument from '../swagger.json' with { type: 'json' };
-import { Prisma } from './generated/prisma/browser.js';
-import { clerkMiddleware, requireAuth, getAuth } from '@clerk/express';
 
 const app = express();
 
@@ -14,10 +14,15 @@ const allowedOrigins = ['http://localhost:5173', 'https://expenses.shicks255.com
 
 const corsOptions: CorsOptions = {
   origin(origin, callback) {
+    // Requests from curl, Postman, server-side clients, etc.
+    // do not necessarily contain an Origin header.
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
       return;
     }
+
+    console.error(`Blocked CORS origin: ${origin}`);
+    callback(new Error(`Origin not allowed by CORS: ${origin}`));
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -25,8 +30,10 @@ const corsOptions: CorsOptions = {
   optionsSuccessStatus: 204,
 };
 
+// Must come before Clerk and all routes.
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+
+app.use(express.json());
 
 app.use(
   clerkMiddleware({
@@ -34,65 +41,29 @@ app.use(
     publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
   }),
 );
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-  }),
-);
-app.use(express.json());
+
+app.get('/api/me', requireAuth(), (req, res) => {
+  res.json(getAuth(req));
+});
 
 RegisterRoutes(app);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-const PORT = process.env.PORT || 8181;
-app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
-});
+const PORT = Number(process.env.PORT ?? 8181);
 
-app.get('/api/me', requireAuth(), async (req, res) => {
-  const u = getAuth(req);
-
-  res.json(u);
-});
-
-console.log('Database connected');
-prisma.$connect().then(async () => {
-  console.log('Connected to database');
-
+async function startServer(): Promise<void> {
   try {
-    console.log('Deleting all categories');
-    //   await prisma.userCategory.deleteMany();
+    await prisma.$connect();
+    console.log('Connected to database');
 
-    //   const category1 = await prisma.userCategory.create({
-    //     data: {
-    //       userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
-    //       id: 1,
-    //       name: 'Food',
-    //       notes: 'Expenses for groceries and dining out',
-    //     },
-    //   });
-
-    //   const category2 = await prisma.userCategory.create({
-    //     data: {
-    //       userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
-    //       id: 2,
-    //       name: 'House',
-    //       notes: 'Expenses for groceries and dining out',
-    //     },
-    //   });
-
-    //   const category3 = await prisma.userCategory.create({
-    //     data: {
-    //       userId: 'user_3C3ErmPiHCVyYTiSKMeN21Ef3b7',
-    //       id: 3,
-    //       name: 'Other',
-    //       notes: 'Expenses for groceries and dining out',
-    //     },
-    //   });
+    app.listen(PORT, () => {
+      console.log(`Server listening on port ${PORT}`);
+    });
   } catch (error) {
-    console.error('Error creating categories:', error);
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-  console.log('done database stuff');
-});
+}
+
+void startServer();
