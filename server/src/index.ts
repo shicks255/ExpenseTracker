@@ -10,6 +10,8 @@ import { clerkMiddleware, requireAuth, getAuth } from '@clerk/express';
 
 const app = express();
 
+const allowedOrigins = ['http://localhost:5173', 'https://expenses.shicks255.com'];
+
 app.use(
   clerkMiddleware({
     secretKey: process.env.CLERK_SECRET_KEY,
@@ -23,6 +25,12 @@ app.use(
   }),
 );
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+  }),
+);
 
 RegisterRoutes(app);
 
