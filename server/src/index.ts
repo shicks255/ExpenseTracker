@@ -1,7 +1,7 @@
 import express from 'express';
 import { prisma } from './db.js';
 import 'dotenv/config';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import { RegisterRoutes } from './routes.js';
 import swaggerDocument from '../swagger.json' with { type: 'json' };
@@ -12,11 +12,21 @@ const app = express();
 
 const allowedOrigins = ['http://localhost:5173', 'https://expenses.shicks255.com'];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-  }),
-);
+const corsOptions: CorsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) {
+      callback(null, true);
+      return;
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(
   clerkMiddleware({
