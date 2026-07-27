@@ -14,7 +14,7 @@ const allowedOrigins = ['http://localhost:5173', 'https://expenses.shicks255.com
 
 const corsOptions: CorsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.has(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
       return;
     }
