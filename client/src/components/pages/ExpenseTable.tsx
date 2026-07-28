@@ -21,6 +21,7 @@ import {
   ArrowUp,
   CalendarIcon,
   Check,
+  Loader,
   Loader2,
   MoreHorizontalIcon,
   Search,
@@ -74,6 +75,7 @@ import { Label } from '@ui/label';
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@ui/item';
 import { Spinner } from '@ui/spinner';
 import { useAuth } from '@clerk/react';
+import { useStorageExpenses } from '@/hooks/useStorageExpenses';
 
 const unwrapMoney = (amount: number) => {
   return amount / 100;
@@ -247,6 +249,7 @@ export default function ExpenseTable() {
 
   return (
     <>
+      <ExpenseImporter />
       {isFetching && (
         <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
           <div className="rounded-full border bg-background p-4 shadow-lg">
@@ -686,7 +689,7 @@ export default function ExpenseTable() {
 export const ExpenseUpload = () => {
   const { getToken } = useAuth();
 
-  const [uploadDialog, setUploadDialog] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [pdf, setPdf] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -711,6 +714,7 @@ export const ExpenseUpload = () => {
   };
 
   const submitUpload = async () => {
+    setIsUploading(true);
     const token = await getToken();
     const formData = new FormData();
 
@@ -723,22 +727,97 @@ export const ExpenseUpload = () => {
         Authorization: `Bearer ${token}`,
       },
     });
+
+    const [status, payload] = await Promise.all([response.status, response.json()]);
+
+    if (status < 200 || status > 300) {
+      alert('somethings not quite right');
+    }
+
+    if (payload.items) {
+      localStorage.setItem(`statement-${pdf?.name}`, JSON.stringify(payload.items));
+      window.dispatchEvent(new Event('local-storage-update'));
+    }
+
+    setDialogOpen(false);
+    setIsUploading(false);
+    setPdf(null);
   };
 
   return (
-    <Dialog>
+    <Dialog
+      open={dialogOpen}
+      onOpenChange={(state) => {
+        if (!state) setDialogOpen(false);
+      }}
+    >
       <DialogTrigger>
-        <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          Upload
-        </button>
+        <Button onClick={() => setDialogOpen(true)}>Upload</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>My thing</DialogTitle>
         </DialogHeader>
         <DialogDescription>
-          <input onChange={handleFileChange} type="file" accept=".pdf,application/pdf" />
-          {pdf && <button onClick={submitUpload}>Upload</button>}
+          <Field>
+            <FieldLabel htmlFor="pdf">Upload statement pdf</FieldLabel>
+            <Input id="pdf" type="file" onChange={handleFileChange} accept=".pdf,application/pdf" />
+          </Field>
+          <br />
+          {pdf && <Button onClick={submitUpload}>Upload</Button>}
+          {isUploading && <Loader />}
+        </DialogDescription>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const ExpenseImporter = () => {
+  // let storedStatement = '';
+  // const [items, setItems] = useState([]);
+  const [storedValues, setStoredValues, fileName] = useStorageExpenses();
+
+  // for (let i = 0; i < localStorage.length; i++) {
+  // const item = localStorage.key(i);
+  // if (item?.startsWith('statement-')) {
+  // storedStatement = item;
+  // continue;
+  // }
+  // }
+
+  // useEffect(() => {
+  // if (storedStatement) {
+  // const statement = localStorage.getItem(storedStatement);
+  // const parsed = JSON.parse(statement);
+  // setItems(parsed);
+  // }
+  // }, [storedStatement.length]);
+
+  const quitImport = () => {
+    localStorage.removeItem(fileName);
+    window.dispatchEvent(new Event('local-storage-update'));
+  };
+
+  if (!storedValues || storedValues.length == 0) {
+    return;
+  }
+
+  return (
+    <Dialog open={true}>
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>Import expenses</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>
+          <p>You have {storedValues.length} expenses waiting to be saved</p>
+          <p>Keep going to quit import?</p>
+          <br />
+          <div className="flex justify-between">
+            <Button>Continue</Button>
+            <Button onClick={quitImport} variant="destructive">
+              Quit import
+            </Button>
+          </div>
         </DialogDescription>
       </DialogContent>
     </Dialog>
